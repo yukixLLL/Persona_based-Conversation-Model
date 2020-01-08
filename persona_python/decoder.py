@@ -1,21 +1,13 @@
 from attention import *
 from param import DROP_OUT, speakerNum
 
-def combine_user_vector(i_em, j_em):
-    # size is equal to the number of
-    size = i_em.shape[-1]
-    W1 = tf.keras.layers.Dense(size)
-    W2 = tf.keras.layers.Dense(size)
-    V_ij = tf.nn.tanh(W1(i_em) + W2(j_em))
-    return V_ij
-
 class Decoder(tf.keras.Model):
-    def __init__(self, hidden_size, vocab_size, embedding_dim, num_layers=1):
+    def __init__(self, hidden_size, vocab_size, embedding_dim,speaker_dim, num_layers=1):
         super(Decoder, self).__init__()
         self.hidden_size = hidden_size
         self.num_layers = num_layers
         self.embedding = tf.keras.layers.Embedding(vocab_size, embedding_dim)
-        self.speaker_embedding = tf.keras.layers.Embedding(speakerNum, embedding_dim)
+        self.speaker_embedding = tf.keras.layers.Embedding(speakerNum,speaker_dim)
         self.input_size = embedding_dim
         self.output_size = vocab_size  # vocabulary size
         self.lstm_1 = tf.keras.layers.LSTM(self.hidden_size,
@@ -30,7 +22,8 @@ class Decoder(tf.keras.Model):
                                                    return_state=True,
                                                    dropout=DROP_OUT))
         self.fc = tf.keras.layers.Dense(self.output_size)
-
+        self.W1 = tf.keras.layers.Dense(speaker_dim)
+        self.W2 = tf.keras.layers.Dense(speaker_dim)
         # attention feed on context
         self.attention = Attention_Feed(self.hidden_size)
 
@@ -43,7 +36,7 @@ class Decoder(tf.keras.Model):
         speaker = self.speaker_embedding(speaker_id)
         if addressee_id is not None:
             addressee = self.speaker_embedding(addressee_id)
-            v_ij = combine_user_vector(speaker, addressee)
+            v_ij = self.combine_user_vector(speaker, addressee)
             features = tf.concat([features, tf.expand_dims(v_ij, 1)], axis=-1)
         else:
             features = tf.concat([features, tf.expand_dims(speaker, 1)], axis=-1)
@@ -65,3 +58,8 @@ class Decoder(tf.keras.Model):
         # after fc: output shape == （batch_size, vocab_size)
         output = tf.nn.log_softmax(self.fc(output), axis=1)
         return output, state, c, attention_weights
+
+    def combine_user_vector(self,i_em, j_em):
+        # size = i_em.shape[-1]
+        V_ij = tf.nn.tanh(self.W1(i_em) + self.W2(j_em))
+        return V_ij

@@ -1,0 +1,12 @@
+BATCH_SIZE = 64
+ENC_HIDDEN_SIZE = 400
+DEC_HIDDEN_SIZE = 512
+NUM_LAYER = 4
+DROP_OUT = 0.2
+embedding_dim = 512
+speaker_dim = 128
+MAXLEN = 50
+speakerNum = 14
+EPOCHS = 10
+LATENT_SIZE = 200
+Use_Prior = False
