@@ -12,9 +12,8 @@ def validation(train_nn, inp, targ, speaker_id, addressee_id=None, batch_size=BA
     speaker_id = np.asarray(speaker_id)
     if addressee_id is not None:
         addressee_id = np.asarray(addressee_id)
-    #     print("test targ[:,1].shape: {}".format(targ[:,1].shape))
     val_size = targ.shape[0]
-    print("val_size: {}".format(val_size))
+    # print("val_size: {}".format(val_size))
     num_batch = (int)(np.floor(val_size / batch_size))
     remaining_num = val_size - num_batch * batch_size
     if remaining_num == 0:
@@ -24,25 +23,10 @@ def validation(train_nn, inp, targ, speaker_id, addressee_id=None, batch_size=BA
         batch_loss = 0
         size = batch_size
         if (k + batch_size) >= val_size:
-            # print("k now +batch_size>=val_size: {}".format(k))
             size = remaining_num
-            # inputs = inp[k:]
-            # targs = targ[k:]
-            # s_id = speaker_id[k:]
-            # #             print("s_id.shape: {}".format(s_id.shape))
-            # if addressee_id is not None:
-            #     a_id = addressee_id[k:]
-            # enc_hidden = [tf.zeros((remaining_num, HIDDEN_SIZE)), tf.zeros((remaining_num, HIDDEN_SIZE))]
-            #
-            # enc_out, enc_hidden, enc_c = train_nn.encoder(inputs, enc_hidden)
-            # dec_init_state = [enc_hidden, enc_c]
-            # dec_input = tf.expand_dims([train_nn.tokenizer.word_index['<sos>']] * remaining_num, 1)
-        # else:
-        #     print("k now: {}".format(k))
         inputs = inp[k:k + size]
         targs = targ[k:k + size]
         s_id = speaker_id[k:k + size]
-        # print("s_id.shape: {}".format(s_id.shape))
         if addressee_id is not None:
             a_id = addressee_id[k:k + size]
 
@@ -67,9 +51,9 @@ def validation(train_nn, inp, targ, speaker_id, addressee_id=None, batch_size=BA
             batch_loss += tf.math.reduce_sum(loss_ / word_per_line)
             dec_input = tf.expand_dims(targs[:, t], 1)
 
+        # perplexity of each sentence
         perplexity_batch = tf.math.reduce_sum(tf.exp(loss_sentence))
         perplexity += perplexity_batch
-        # batch_loss_avg = batch_loss/size
         loss += batch_loss
         if(batch_size>1):
             batch_num = k / batch_size + 1
@@ -82,6 +66,7 @@ def validation(train_nn, inp, targ, speaker_id, addressee_id=None, batch_size=BA
                 print('{}th senntence now, current batch loss {:.4f}, current loss {:.4f}, current perplexity:{:4f}'.format(k + 1, batch_loss/size,
                                                     loss/(k+1), tf.exp(batch_loss/size)))
 
+    # perplexity using average loss
     perplexity = perplexity/val_size
     print("Perplexity: {}".format(perplexity))
 
