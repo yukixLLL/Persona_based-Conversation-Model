@@ -2,6 +2,9 @@
 
 *EPFL Semester Project, Fall 2019. By Yueran Liang*
 
+All the detail of this project is in the [report](https://github.com/yukixLLL/Persona_based-Conversation-Model/blob/master/Persona_report.pdf).
+
+## Description of important documents:
 **persona_python** contains basic persona-based model. In the folder, `main_SM.py` and `main_SAM.py` corresponds to run the training in Speaker Model and Speaker-Addressee Model respectively. For validation, `main_validation.py` is provided.
 
 **vae_python** contains persona-based CVAE model. In the folder, `vae_SM` and `vae_SAM` corresponds to run the training in Speaker Model and Speaker-Addressee Model respectively. For validation, `main_validation.py` is provided.
